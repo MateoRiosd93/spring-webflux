@@ -53,4 +53,38 @@ public class ProductController {
 
         return "list";
     }
+
+
+    @GetMapping("/list-full-products")
+    public String listFullProducts(Model model) {
+        Flux<Product> productFlux = productRepository.findAll();
+
+        Flux<Product> productFluxUpperCase = productFlux.map(product -> {
+                    product.setName(product.getName().toUpperCase());
+                    return product;
+                })
+                .repeat(5000);
+
+        model.addAttribute("products", productFluxUpperCase);
+        model.addAttribute("title", "List of products");
+
+        return "list";
+    }
+
+    @GetMapping("/list-chunked-products")
+    public String listChunkedProducts(Model model) {
+        Flux<Product> productFlux = productRepository.findAll();
+
+        Flux<Product> productFluxUpperCase = productFlux.map(product -> {
+                    product.setName(product.getName().toUpperCase());
+                    return product;
+                })
+                .repeat(5000);
+
+        model.addAttribute("products", productFluxUpperCase);
+        model.addAttribute("title", "List of products");
+
+        return "list-chunked";
+    }
+
 }
