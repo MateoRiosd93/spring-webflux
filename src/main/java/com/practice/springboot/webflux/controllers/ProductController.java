@@ -9,8 +9,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.thymeleaf.spring6.context.webflux.ReactiveDataDriverContextVariable;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.time.Duration;
 
@@ -23,18 +25,33 @@ public class ProductController {
     private static final Logger log = LoggerFactory.getLogger(ProductController.class);
 
     @GetMapping({"/list-products", "/"})
-    public String listProducts(Model model) {
+    public Mono<String> listProducts(Model model) {
         Flux<Product> productFluxUpperCase = productService.findAllNameToUpperCase();
         productFluxUpperCase.subscribe(product -> log.info(product.getName()));
 
         model.addAttribute("products", productFluxUpperCase);
         model.addAttribute("title", "List of products");
 
-        return "list";
+        return Mono.just("list");
+    }
+
+    @GetMapping("/form")
+    public Mono<String> createProduct(Model model){
+        model.addAttribute("product", new Product());
+        model.addAttribute("title", "Create products");
+
+        return Mono.just("form");
+    }
+
+    @PostMapping("/form")
+    public Mono<String> saveProduct(Product product){
+        return productService.save(product)
+                .doOnNext(productSaved -> log.info("Product save: {} id: {}", productSaved.getName(), productSaved.getId()))
+                .thenReturn("redirect:/list-products");
     }
 
     @GetMapping("/list-products-data-driver")
-    public String listProductsDataDriver(Model model) {
+    public Mono<String> listProductsDataDriver(Model model) {
         Flux<Product> productFluxUpperCase = productService.findAllNameToUpperCase()
                 .delayElements(Duration.ofSeconds(1));
 
@@ -43,28 +60,28 @@ public class ProductController {
         model.addAttribute("products", new ReactiveDataDriverContextVariable(productFluxUpperCase, 2));
         model.addAttribute("title", "List of products");
 
-        return "list";
+        return Mono.just("list");
     }
 
 
     @GetMapping("/list-full-products")
-    public String listFullProducts(Model model) {
+    public Mono<String> listFullProducts(Model model) {
         Flux<Product> productFluxUpperCase = productService.findAllNameToUpperCaseRepeat();
 
         model.addAttribute("products", productFluxUpperCase);
         model.addAttribute("title", "List of products");
 
-        return "list";
+        return Mono.just("list");
     }
 
     @GetMapping("/list-chunked-products")
-    public String listChunkedProducts(Model model) {
+    public Mono<String> listChunkedProducts(Model model) {
         Flux<Product> productFluxUpperCase = productService.findAllNameToUpperCaseRepeat();
 
         model.addAttribute("products", productFluxUpperCase);
         model.addAttribute("title", "List of products");
 
-        return "list-chunked";
+        return Mono.just("list-chunked");
     }
 
 }
