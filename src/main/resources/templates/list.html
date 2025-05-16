@@ -17,6 +17,7 @@
                 <th>Price</th>
                 <th>Create at</th>
                 <th>Edit</th>
+                <th>Delete</th>
             </thead>
             <tbody>
                 <tr th:each="product: ${products}">
@@ -25,6 +26,7 @@
                     <td th:text="${product.price}"></td>
                     <td th:text="${product.createAt}"></td>
                     <th><a th:href="@{/form/} + ${product.id}">edit ✏️</a></th>
+                    <th><a th:href="@{/delete/} + ${product.id}">deleted 🗑️</a></th>
                 </tr>
             </tbody>
         </table>

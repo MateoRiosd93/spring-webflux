@@ -112,6 +112,21 @@ public class ProductController {
                 .thenReturn("redirect:/list-products?success=product+created+succes");
     }
 
+    @GetMapping("delete/{id}")
+    public Mono<String> deleteProduct(@PathVariable String id) {
+        return productService.findById(id)
+                .defaultIfEmpty(new Product())
+                .flatMap(product -> {
+                    if (product.getId() == null) {
+                        return Mono.error(new InterruptedException("The product to be eliminated does not exist."));
+                    }
+                    return Mono.just(product);
+                })
+                .flatMap(productService::delete)
+                .then(Mono.just("redirect:/list-products?success=product+successfully+removed"))
+                .onErrorResume(error -> Mono.just("redirect:/list-products?error=The+product+to+be+deleted+cannot+be+found"));
+    }
+
     @GetMapping("/list-products-data-driver")
     public Mono<String> listProductsDataDriver(Model model) {
         Flux<Product> productFluxUpperCase = productService.findAllNameToUpperCase()
