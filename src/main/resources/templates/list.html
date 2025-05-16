@@ -5,6 +5,8 @@
         <title th:text="${title}">Title</title>
     </head>
     <body>
+        <p th:if="${param.error} != null" th:text="${param.error}"></p>
+        <p th:if="${param.succes} != null" th:text="${param.succes}"></p>
         <h1 th:text="${title}"></h1>
         <a th:href="@{/form}">Create a product. ➕</a>
         <br>
@@ -22,7 +24,7 @@
                     <td th:text="${product.name}"></td>
                     <td th:text="${product.price}"></td>
                     <td th:text="${product.createAt}"></td>
-                    <th><a th:href="@{/form/} + ${product.id}">edit ✏️</a></th>
+                    <th><a th:href="@{/form/v2/} + ${product.id}">edit ✏️</a></th>
                 </tr>
             </tbody>
         </table>

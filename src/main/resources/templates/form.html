@@ -9,8 +9,8 @@
         <a th:href="@{/list-products}">List of products. 🧾</a>
         <div>
             <form th:action="@{/form}" method="post" th:object="${product}">
-                <!--    Se hacer eso para que el template tenga el id para la hora de hacer el edit - No es la mejor manera -->
-                <input th:if="${product.id != null}" type="hidden" th:field="{id}"/>
+                <!--  Se hacer eso para que el template tenga el id para la hora de hacer el edit - No es la mejor manera -->
+                <!--  <input th:if="${product.id != null}" type="hidden" th:field="{id}"/>-->
                 <div>
                     <label for="name">Name</label>
                     <input id="name" type="text" placeholder="Enter name of product..." th:field="*{name}"/>
@@ -24,7 +24,7 @@
                     <input id="createAt" type="date" placeholder="Enter date of product..." th:field="*{createAt}"/>
                 </div>
                 <div>
-                    <button type="submit">Save</button>
+                    <input type="submit" th:value="${textButton}"/>
                 </div>
             </form>
         </div>

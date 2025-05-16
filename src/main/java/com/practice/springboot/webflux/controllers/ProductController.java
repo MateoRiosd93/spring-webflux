@@ -45,6 +45,7 @@ public class ProductController {
     @GetMapping("/form")
     public Mono<String> createProduct(Model model){
         model.addAttribute("product", new Product());
+        model.addAttribute("textButton", "Create");
         model.addAttribute("title", "Create products");
 
         return Mono.just("form");
@@ -57,9 +58,31 @@ public class ProductController {
                 .defaultIfEmpty(new Product());
 
         model.addAttribute("title", "Edit product");
+        model.addAttribute("textButton", "Edit");
         model.addAttribute("product", productMono);
 
         return Mono.just("form");
+    }
+
+    @GetMapping("/form/v2/{id}")
+    public Mono<String> editProductV2(@PathVariable String id, Model model) {
+        return productService.findById(id)
+                .doOnNext(product -> {
+                    log.info("Edit product: {}", product.getName());
+                    // En este caso el SessionAttributes no guardaria los atributos ya que se esta agregando el atributo dentro de otro contexto.
+                    model.addAttribute("title", "Edit product");
+                    model.addAttribute("textButton", "Edit");
+                    model.addAttribute("product", product);
+                })
+                .defaultIfEmpty(new Product())
+                .flatMap(product -> {
+                    if (product.getId() == null) {
+                        return Mono.error(new InterruptedException("Product no exist."));
+                    }
+                    return Mono.just(product);
+                })
+                .then(Mono.just("form"))
+                .onErrorResume(error -> Mono.just("redirect:/list-products?error=product+not+found"));
     }
 
     @PostMapping("/form")
