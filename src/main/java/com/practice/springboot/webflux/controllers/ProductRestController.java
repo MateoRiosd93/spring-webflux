@@ -1,7 +1,7 @@
 package com.practice.springboot.webflux.controllers;
 
 import com.practice.springboot.webflux.models.documents.Product;
-import com.practice.springboot.webflux.models.repository.ProductRepository;
+import com.practice.springboot.webflux.services.ProductServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,16 +17,12 @@ import reactor.core.publisher.Mono;
 @RequestMapping("/api/products")
 public class ProductRestController {
 
-    private final ProductRepository productRepository;
+    private final ProductServiceImpl productService;
     private static final Logger log = LoggerFactory.getLogger(ProductController.class);
 
     @GetMapping()
     public Flux<Product> getProducts() {
-        return productRepository.findAll()
-                .map(product -> {
-                    product.setName(product.getName().toUpperCase());
-                    return product;
-                }).doOnNext(product -> log.info(product.getName()));
+        return productService.findAllNameToUpperCase();
     }
 
     @GetMapping("/{id}")
@@ -35,11 +31,9 @@ public class ProductRestController {
 //        return productRepository.findById(id);
 
 //        Haciendolo con Flux para practicar un poco mas los metodos.
-        Flux<Product> productFlux = productRepository.findAll();
+//        Flux<Product> productFlux = productRepository.findAll();
 
-        return productFlux.filter(product -> product.getId().equalsIgnoreCase(id))
-                .next()
-                .doOnNext(product -> log.info(product.getName()));
+        return productService.findById(id);
     }
 
 }
