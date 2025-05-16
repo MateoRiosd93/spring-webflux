@@ -9,13 +9,20 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.SessionAttributes;
+import org.springframework.web.bind.support.SessionStatus;
 import org.thymeleaf.spring6.context.webflux.ReactiveDataDriverContextVariable;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.Duration;
 
+/** @SessionAttributes se utiliza para almacenar atributos del modelo (Model) en la sesión HTTP, de modo que puedan
+ * mantenerse disponibles entre múltiples peticiones (requests) dentro de la misma sesión de usuario. */
+
+@SessionAttributes("product")
 @RequiredArgsConstructor
 @Controller
 public class ProductController {
@@ -43,8 +50,23 @@ public class ProductController {
         return Mono.just("form");
     }
 
+    @GetMapping("/form/{id}")
+    public Mono<String> editProduct(@PathVariable String id, Model model) {
+        Mono<Product> productMono = productService.findById(id)
+                .doOnNext(product -> log.info("Edit product: {}", product.getName()))
+                .defaultIfEmpty(new Product());
+
+        model.addAttribute("title", "Edit product");
+        model.addAttribute("product", productMono);
+
+        return Mono.just("form");
+    }
+
     @PostMapping("/form")
-    public Mono<String> saveProduct(Product product){
+    public Mono<String> saveProduct(Product product, SessionStatus sessionStatus){
+// sessionStatus.setComplete() se utiliza en Spring MVC para indicar que has terminado de usar los atributos almacenados en la sesión mediante @SessionAttributes
+        sessionStatus.setComplete();
+
         return productService.save(product)
                 .doOnNext(productSaved -> log.info("Product save: {} id: {}", productSaved.getName(), productSaved.getId()))
                 .thenReturn("redirect:/list-products");

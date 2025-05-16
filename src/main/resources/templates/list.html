@@ -14,6 +14,7 @@
                 <th>Name</th>
                 <th>Price</th>
                 <th>Create at</th>
+                <th>Edit</th>
             </thead>
             <tbody>
                 <tr th:each="product: ${products}">
@@ -21,6 +22,7 @@
                     <td th:text="${product.name}"></td>
                     <td th:text="${product.price}"></td>
                     <td th:text="${product.createAt}"></td>
+                    <th><a th:href="@{/form/} + ${product.id}">edit ✏️</a></th>
                 </tr>
             </tbody>
         </table>
