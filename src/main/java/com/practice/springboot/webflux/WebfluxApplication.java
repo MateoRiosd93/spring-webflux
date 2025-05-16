@@ -2,8 +2,8 @@ package com.practice.springboot.webflux;
 
 import com.practice.springboot.webflux.models.documents.Category;
 import com.practice.springboot.webflux.models.documents.Product;
-import com.practice.springboot.webflux.services.category.CategoryServiceImpl;
-import com.practice.springboot.webflux.services.product.ProductServiceImpl;
+import com.practice.springboot.webflux.services.category.CategoryService;
+import com.practice.springboot.webflux.services.product.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,8 +19,8 @@ import java.util.Date;
 @SpringBootApplication
 public class WebfluxApplication implements CommandLineRunner {
 
-    private final ProductServiceImpl productService;
-	private final CategoryServiceImpl categoryService;
+    private final ProductService productService;
+	private final CategoryService categoryService;
     private final ReactiveMongoTemplate reactiveMongoTemplate;
 
     private static final Logger log = LoggerFactory.getLogger(WebfluxApplication.class);

@@ -1,8 +1,7 @@
 package com.practice.springboot.webflux.controllers;
 
 import com.practice.springboot.webflux.models.documents.Product;
-import com.practice.springboot.webflux.models.repository.ProductRepository;
-import com.practice.springboot.webflux.services.product.ProductServiceImpl;
+import com.practice.springboot.webflux.services.product.ProductService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -30,8 +29,7 @@ import java.util.Date;
 @Controller
 public class ProductController {
 
-    private final ProductRepository productRepository;
-    private final ProductServiceImpl productService;
+    private final ProductService productService;
     private static final Logger log = LoggerFactory.getLogger(ProductController.class);
 
     @GetMapping({"/list-products", "/"})
