@@ -1,5 +1,6 @@
 package com.practice.springboot.webflux.models.documents;
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -26,6 +27,7 @@ public class Product {
     @DateTimeFormat(pattern="yyyy-MM-dd")
     private Date createAt;
     // Se agrega atributo category para relacionar el producto con una categoria
+    @Valid
     private Category category;
 
     public Product(String name, Double price){

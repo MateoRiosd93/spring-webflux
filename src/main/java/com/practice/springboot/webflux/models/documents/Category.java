@@ -1,5 +1,6 @@
 package com.practice.springboot.webflux.models.documents;
 
+import jakarta.validation.constraints.NotEmpty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -12,6 +13,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document(collection = "categories")
 public class Category {
     @Id
+    @NotEmpty
     private String id;
     private String name;
 

@@ -26,6 +26,14 @@
                     <input id="createAt" type="date" placeholder="Enter date of product..." th:field="*{createAt}"/>
                 </div>
                 <div>
+                    <label for="category.id">Categories</label>
+                    <select th:field="*{category.id}">
+                        <option value="">-- Select category...</option>
+                        <option th:each="category: ${categories}" th:value="${category.id}" th:text="${category.name}"></option>
+                    </select>
+                    <small th:if="${#fields.hasErrors('category.id')}" th:errors="*{category.id}"></small>
+                </div>
+                <div>
                     <input type="submit" th:value="${textButton}"/>
                 </div>
             </form>

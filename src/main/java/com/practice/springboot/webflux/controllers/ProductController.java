@@ -1,6 +1,8 @@
 package com.practice.springboot.webflux.controllers;
 
+import com.practice.springboot.webflux.models.documents.Category;
 import com.practice.springboot.webflux.models.documents.Product;
+import com.practice.springboot.webflux.services.category.CategoryService;
 import com.practice.springboot.webflux.services.product.ProductService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -9,10 +11,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.SessionAttributes;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.support.SessionStatus;
 import org.thymeleaf.spring6.context.webflux.ReactiveDataDriverContextVariable;
 import reactor.core.publisher.Flux;
@@ -29,8 +28,18 @@ import java.util.Date;
 @Controller
 public class ProductController {
 
+    // NOTA: En caso de ser dos modelos que tienen alguna relacion se puede tener una interfaz que tenga los metodos a implementar
+    // Caso contrario se puede tener diferentes interfaces e implementaciones de la misma (Aca desacople por orden, aunque tienen relacion 😂)
     private final ProductService productService;
+    private final CategoryService categoryService;
+
     private static final Logger log = LoggerFactory.getLogger(ProductController.class);
+
+    // Pasara el flux de categorias a la vista.
+    @ModelAttribute("categories")
+    public Flux<Category> getCategories(){
+        return categoryService.findAll();
+    }
 
     @GetMapping({"/list-products", "/"})
     public Mono<String> listProducts(Model model) {
@@ -105,8 +114,16 @@ public class ProductController {
         // sessionStatus.setComplete() se utiliza en Spring MVC para indicar que has terminado de usar los atributos almacenados en la sesión mediante @SessionAttributes
         sessionStatus.setComplete();
 
-        return productService.save(product)
-                .doOnNext(productSaved -> log.info("Product save: {} id: {}", productSaved.getName(), productSaved.getId()))
+        Mono<Category> categoryMono = categoryService.findByID(product.getCategory().getId());
+
+        return categoryMono.flatMap(category -> {
+                    product.setCategory(category);
+                    return productService.save(product);
+                })
+                .doOnNext(productSaved -> {
+                    log.info("Product save: {} id: {}", productSaved.getName(), productSaved.getId());
+                    log.info("Category assigned: {} id: {}", productSaved.getCategory().getName(), productSaved.getCategory().getId());
+                })
                 .thenReturn("redirect:/list-products?success=product+created+succes");
     }
 
