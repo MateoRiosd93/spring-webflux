@@ -2,6 +2,7 @@ package com.practice.springboot.webflux.controllers;
 
 import com.practice.springboot.webflux.models.documents.Product;
 import com.practice.springboot.webflux.models.repository.ProductRepository;
+import com.practice.springboot.webflux.services.ProductServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,18 +17,14 @@ import java.time.Duration;
 @RequiredArgsConstructor
 @Controller
 public class ProductController {
+
     private final ProductRepository productRepository;
+    private final ProductServiceImpl productService;
     private static final Logger log = LoggerFactory.getLogger(ProductController.class);
 
     @GetMapping({"/list-products", "/"})
     public String listProducts(Model model) {
-        Flux<Product> productFlux = productRepository.findAll();
-
-        Flux<Product> productFluxUpperCase = productFlux.map(product -> {
-                    product.setName(product.getName().toUpperCase());
-                    return product;
-                });
-
+        Flux<Product> productFluxUpperCase = productService.findAllNameToUpperCase();
         productFluxUpperCase.subscribe(product -> log.info(product.getName()));
 
         model.addAttribute("products", productFluxUpperCase);
@@ -38,12 +35,7 @@ public class ProductController {
 
     @GetMapping("/list-products-data-driver")
     public String listProductsDataDriver(Model model) {
-        Flux<Product> productFlux = productRepository.findAll();
-
-        Flux<Product> productFluxUpperCase = productFlux.map(product -> {
-                    product.setName(product.getName().toUpperCase());
-                    return product;
-                })
+        Flux<Product> productFluxUpperCase = productService.findAllNameToUpperCase()
                 .delayElements(Duration.ofSeconds(1));
 
         productFluxUpperCase.subscribe(product -> log.info(product.getName()));
@@ -57,13 +49,7 @@ public class ProductController {
 
     @GetMapping("/list-full-products")
     public String listFullProducts(Model model) {
-        Flux<Product> productFlux = productRepository.findAll();
-
-        Flux<Product> productFluxUpperCase = productFlux.map(product -> {
-                    product.setName(product.getName().toUpperCase());
-                    return product;
-                })
-                .repeat(5000);
+        Flux<Product> productFluxUpperCase = productService.findAllNameToUpperCaseRepeat();
 
         model.addAttribute("products", productFluxUpperCase);
         model.addAttribute("title", "List of products");
@@ -73,13 +59,7 @@ public class ProductController {
 
     @GetMapping("/list-chunked-products")
     public String listChunkedProducts(Model model) {
-        Flux<Product> productFlux = productRepository.findAll();
-
-        Flux<Product> productFluxUpperCase = productFlux.map(product -> {
-                    product.setName(product.getName().toUpperCase());
-                    return product;
-                })
-                .repeat(5000);
+        Flux<Product> productFluxUpperCase = productService.findAllNameToUpperCaseRepeat();
 
         model.addAttribute("products", productFluxUpperCase);
         model.addAttribute("title", "List of products");
