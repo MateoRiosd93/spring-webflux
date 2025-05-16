@@ -1,4 +1,4 @@
-package com.practice.springboot.webflux.services;
+package com.practice.springboot.webflux.services.product;
 
 import com.practice.springboot.webflux.models.documents.Product;
 import reactor.core.publisher.Flux;

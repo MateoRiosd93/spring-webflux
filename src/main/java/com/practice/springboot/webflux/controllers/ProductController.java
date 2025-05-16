@@ -2,7 +2,7 @@ package com.practice.springboot.webflux.controllers;
 
 import com.practice.springboot.webflux.models.documents.Product;
 import com.practice.springboot.webflux.models.repository.ProductRepository;
-import com.practice.springboot.webflux.services.ProductServiceImpl;
+import com.practice.springboot.webflux.services.product.ProductServiceImpl;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;

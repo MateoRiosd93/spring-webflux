@@ -1,7 +1,7 @@
 package com.practice.springboot.webflux.controllers;
 
 import com.practice.springboot.webflux.models.documents.Product;
-import com.practice.springboot.webflux.services.ProductServiceImpl;
+import com.practice.springboot.webflux.services.product.ProductServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,11 +27,11 @@ public class ProductRestController {
 
     @GetMapping("/{id}")
     public Mono<Product> getProduct(@PathVariable String id) {
-//        NOTA: Retornando directamente el Product con el findById
-//        return productRepository.findById(id);
+        // NOTA: Retornando directamente el Product con el findById
+        // return productRepository.findById(id);
 
-//        Haciendolo con Flux para practicar un poco mas los metodos.
-//        Flux<Product> productFlux = productRepository.findAll();
+        // Haciendolo con Flux para practicar un poco mas los metodos.
+        // Flux<Product> productFlux = productRepository.findAll();
 
         return productService.findById(id);
     }
