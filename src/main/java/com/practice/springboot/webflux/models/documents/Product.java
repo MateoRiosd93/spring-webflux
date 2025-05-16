@@ -1,5 +1,7 @@
 package com.practice.springboot.webflux.models.documents;
 
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -16,9 +18,11 @@ import java.util.Date;
 public class Product {
     @Id
     private String id;
+    @NotEmpty
     private String name;
+    @NotNull
     private Double price;
-//  Agregamos esta anotacion ya que desde el front se manda con ese formato, y sin esto genera un error al hacer el mapeo a tipo Date.
+   // Agregamos esta anotacion ya que desde el front se manda con ese formato, y sin esto genera un error al hacer el mapeo a tipo Date.
     @DateTimeFormat(pattern="yyyy-MM-dd")
     private Date createAt;
 

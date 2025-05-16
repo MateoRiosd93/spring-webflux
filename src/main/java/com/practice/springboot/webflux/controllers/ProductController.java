@@ -3,11 +3,13 @@ package com.practice.springboot.webflux.controllers;
 import com.practice.springboot.webflux.models.documents.Product;
 import com.practice.springboot.webflux.models.repository.ProductRepository;
 import com.practice.springboot.webflux.services.ProductServiceImpl;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -18,9 +20,10 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.Duration;
+import java.util.Date;
 
-/** @SessionAttributes se utiliza para almacenar atributos del modelo (Model) en la sesión HTTP, de modo que puedan
- * mantenerse disponibles entre múltiples peticiones (requests) dentro de la misma sesión de usuario. */
+// @SessionAttributes se utiliza para almacenar atributos del modelo (Model) en la sesión HTTP, de modo que puedan
+// mantenerse disponibles entre múltiples peticiones (requests) dentro de la misma sesión de usuario.
 
 @SessionAttributes("product")
 @RequiredArgsConstructor
@@ -85,14 +88,28 @@ public class ProductController {
                 .onErrorResume(error -> Mono.just("redirect:/list-products?error=product+not+found"));
     }
 
+   // Al Usar el @NotEmpty en el modelo, debemos hacer uso de la anotacion @Valid para el Product y ademas de eso usar BindingResult para validar si hay errores
+   // IMPORTANTE: El BindingResult debe ir al lado del Modelo que se le estan agregando las validaciones. es importante el orden de los parametros.
     @PostMapping("/form")
-    public Mono<String> saveProduct(Product product, SessionStatus sessionStatus){
-// sessionStatus.setComplete() se utiliza en Spring MVC para indicar que has terminado de usar los atributos almacenados en la sesión mediante @SessionAttributes
+    public Mono<String> saveProduct(@Valid Product product, BindingResult bindingResult, Model model, SessionStatus sessionStatus){
+
+        if (bindingResult.hasErrors()){
+            model.addAttribute("title", "Errors when creating the product");
+            model.addAttribute("textButton", "Save");
+
+            return Mono.just("Form");
+        }
+
+        if (product.getCreateAt() == null){
+            product.setCreateAt(new Date());
+        }
+
+        // sessionStatus.setComplete() se utiliza en Spring MVC para indicar que has terminado de usar los atributos almacenados en la sesión mediante @SessionAttributes
         sessionStatus.setComplete();
 
         return productService.save(product)
                 .doOnNext(productSaved -> log.info("Product save: {} id: {}", productSaved.getName(), productSaved.getId()))
-                .thenReturn("redirect:/list-products");
+                .thenReturn("redirect:/list-products?success=product+created+succes");
     }
 
     @GetMapping("/list-products-data-driver")
