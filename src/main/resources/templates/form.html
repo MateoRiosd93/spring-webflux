@@ -8,9 +8,10 @@
         <h1 th:text="${title}"></h1>
         <a th:href="@{/list-products}">List of products. 🧾</a>
         <div>
-            <form th:action="@{/form}" method="post" th:object="${product}">
+            <form th:action="@{/form}" method="post" th:object="${product}" enctype="multipart/form-data">
                 <!-- Se hacer eso para que el template tenga el id para la hora de hacer el edit - No es la mejor manera -->
                 <!-- <input th:if="${product.id != null}" type="hidden" th:field="{id}"/> -->
+                <!-- <input th:if="${product.image != null}" type="hidden" th:field="{image}"/> -->
                 <div>
                     <label for="name">Name</label>
                     <input id="name" type="text" placeholder="Enter name of product..." th:field="*{name}"/>
@@ -32,6 +33,10 @@
                         <option th:each="category: ${categories}" th:value="${category.id}" th:text="${category.name}"></option>
                     </select>
                     <small th:if="${#fields.hasErrors('category.id')}" th:errors="*{category.id}"></small>
+                </div>
+                <div>
+                    <label for="image">Image</label>
+                    <input id="image" type="file" name="file"/>
                 </div>
                 <div>
                     <input type="submit" th:value="${textButton}"/>

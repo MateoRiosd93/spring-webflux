@@ -8,6 +8,8 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -17,8 +19,10 @@ import org.thymeleaf.spring6.context.webflux.ReactiveDataDriverContextVariable;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.io.File;
 import java.time.Duration;
 import java.util.Date;
+import java.util.UUID;
 
 // @SessionAttributes se utiliza para almacenar atributos del modelo (Model) en la sesión HTTP, de modo que puedan
 // mantenerse disponibles entre múltiples peticiones (requests) dentro de la misma sesión de usuario.
@@ -32,6 +36,8 @@ public class ProductController {
     // Caso contrario se puede tener diferentes interfaces e implementaciones de la misma (Aca desacople por orden, aunque tienen relacion 😂)
     private final ProductService productService;
     private final CategoryService categoryService;
+    @Value("${config.uploads.path}")
+    private String path;
 
     private static final Logger log = LoggerFactory.getLogger(ProductController.class);
 
@@ -98,7 +104,7 @@ public class ProductController {
    // Al Usar el @NotEmpty en el modelo, debemos hacer uso de la anotacion @Valid para el Product y ademas de eso usar BindingResult para validar si hay errores
    // IMPORTANTE: El BindingResult debe ir al lado del Modelo que se le estan agregando las validaciones. es importante el orden de los parametros.
     @PostMapping("/form")
-    public Mono<String> saveProduct(@Valid Product product, BindingResult bindingResult, Model model, SessionStatus sessionStatus){
+    public Mono<String> saveProduct(@Valid Product product, BindingResult bindingResult, Model model,@RequestPart FilePart file, SessionStatus sessionStatus){
 
         if (bindingResult.hasErrors()){
             model.addAttribute("title", "Errors when creating the product");
@@ -107,22 +113,38 @@ public class ProductController {
             return Mono.just("Form");
         }
 
-        if (product.getCreateAt() == null){
-            product.setCreateAt(new Date());
-        }
-
         // sessionStatus.setComplete() se utiliza en Spring MVC para indicar que has terminado de usar los atributos almacenados en la sesión mediante @SessionAttributes
         sessionStatus.setComplete();
 
         Mono<Category> categoryMono = categoryService.findByID(product.getCategory().getId());
 
         return categoryMono.flatMap(category -> {
+                    if (product.getCreateAt() == null){
+                        product.setCreateAt(new Date());
+                    }
+
+                    if (!file.filename().isEmpty()) {
+                        product.setImage(
+                                UUID.randomUUID().toString() + file.filename()
+                                        .replace(" ", "")
+                                        .replace(":", "")
+                                        .replace("\\", "")
+                        );
+                    }
+
                     product.setCategory(category);
                     return productService.save(product);
                 })
                 .doOnNext(productSaved -> {
                     log.info("Product save: {} id: {}", productSaved.getName(), productSaved.getId());
                     log.info("Category assigned: {} id: {}", productSaved.getCategory().getName(), productSaved.getCategory().getId());
+                })
+                .flatMap(product1 -> {
+                    if (!file.filename().isEmpty()){
+                        return file.transferTo(new File(path + product1.getImage()));
+                    }
+
+                    return Mono.empty();
                 })
                 .thenReturn("redirect:/list-products?success=product+created+succes");
     }

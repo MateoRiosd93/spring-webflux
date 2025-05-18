@@ -26,9 +26,11 @@ public class Product {
     // Agregamos esta anotacion ya que desde el front se manda con ese formato, y sin esto genera un error al hacer el mapeo a tipo Date.
     @DateTimeFormat(pattern="yyyy-MM-dd")
     private Date createAt;
+    private String image;
     // Se agrega atributo category para relacionar el producto con una categoria
     @Valid
     private Category category;
+
 
     public Product(String name, Double price){
         this.name = name;
