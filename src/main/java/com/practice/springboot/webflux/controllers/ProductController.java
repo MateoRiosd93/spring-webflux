@@ -36,7 +36,7 @@ public class ProductController {
     // Caso contrario se puede tener diferentes interfaces e implementaciones de la misma (Aca desacople por orden, aunque tienen relacion 😂)
     private final ProductService productService;
     private final CategoryService categoryService;
-    @Value("${config.uploads.path}")
+        @Value("${config.uploads.path}")
     private String path;
 
     private static final Logger log = LoggerFactory.getLogger(ProductController.class);
@@ -45,6 +45,24 @@ public class ProductController {
     @ModelAttribute("categories")
     public Flux<Category> getCategories(){
         return categoryService.findAll();
+    }
+
+    @GetMapping("/product/detail/{id}")
+    public Mono<String> detailProduct(@PathVariable String id, Model model){
+        return productService.findById(id)
+                .doOnNext(product -> {
+                    model.addAttribute("product", product);
+                    model.addAttribute("title", "Product details");
+                })
+                .switchIfEmpty(Mono.just(new Product()))
+                .flatMap(product -> {
+                    if (product.getId() == null) {
+                        return Mono.error(new InterruptedException("Product no exist."));
+                    }
+                    return Mono.just(product);
+                })
+                .then(Mono.just("product-detail"))
+                .onErrorResume(error -> Mono.just("redirect:/list-products?error=product+not+found"));
     }
 
     @GetMapping({"/list-products", "/"})
