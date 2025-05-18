@@ -6,9 +6,14 @@ import com.practice.springboot.webflux.services.category.CategoryService;
 import com.practice.springboot.webflux.services.product.ProductService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
 import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -20,6 +25,8 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.Duration;
 import java.util.Date;
 import java.util.UUID;
@@ -45,6 +52,21 @@ public class ProductController {
     @ModelAttribute("categories")
     public Flux<Category> getCategories(){
         return categoryService.findAll();
+    }
+
+    // Expresion regular :.+ para poder recibir el .png, .jpg, etc ...de la image
+    @SneakyThrows
+    @GetMapping("/upload/image/{image:.+}")
+    public Mono<ResponseEntity<Resource>> getProductImage(@PathVariable String image){
+        Path pathImage = Paths.get(path).resolve(image).toAbsolutePath();
+
+        Resource imageResponse = new UrlResource(pathImage.toUri());
+
+        return Mono.just(
+                ResponseEntity.ok()
+                        .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + imageResponse.getFilename() + "\"")
+                        .body(imageResponse)
+        );
     }
 
     @GetMapping("/product/detail/{id}")

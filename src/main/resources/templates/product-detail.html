@@ -9,6 +9,11 @@
         <a th:href="@{/list-products}">List of products. 🧾</a>
         <br>
         <div>
+            <img
+                    style="max-width: 25%;"
+                    th:if="${product.image != null && #strings.length(product.image) > 0}"
+                    th:src="@{/upload/image/} + ${product.image}" th:alt="${product.name}"
+            >
             <ul>
                 <li th:text="${product.name}"></li>
                 <li th:text="'ID ' + ${product.id}"></li>
