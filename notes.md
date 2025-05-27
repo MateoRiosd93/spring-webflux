@@ -1,6 +1,18 @@
 ## Apuntes SpringBoot WebFlux
 
-### Dependencias para realizar una api rest con webflux
+---
+## 📚 Tabla de Contenidos
+
+- [Apuntes SpringBoot WebFlux](#apuntes-springboot-webflux)
+- [Dependencias webflux](#dependencias-webflux)
+- [Dependencias utiles para proyectos Springboot](#dependencias-utiles-para-proyectos-springboot)
+- [Models Documents](#models-documents)
+- [Repository](#repository)
+- [Service](#service)
+- [Controller/RestController](#controllerrestcontroller)
+---
+
+### Dependencias webflux
 
 1. Spring Data Reactive MongoDB
 2. Spring Reactive Web
@@ -8,12 +20,14 @@
 **Nota:** _En este caso puntual usamos una BD reactiva (Mongo permite estos flujos reactivos)
 y Spring Reactive Web para crear apis reactivas_
 
-### Dependencias para utiles para proyectos Spring boot
+---
+### Dependencias utiles para proyectos Springboot
 
 1. LombokLombok
 2. Spring Boot DevTools
 
-### Models/Documents
+---
+### Models Documents
 A la hora de crear los Models en este caso al usar mongo hacemos referencia a Documents
 se crea la clase y se coloca la anotacion @Document@Document(collection = "products")
 con el respectivo nombre de la collection
@@ -31,6 +45,7 @@ cuando queremos crear una instancia inicializandola con algunas de las propiedad
 
 **@NoArgsConstructor** Permite crear constructor vacio
 
+---
 ### Repository
 Para crear las interfaces del repository de estos modelos implementaremos en este caso con mongo 
 que permite la reactividad la interface ReactiveMongoRepository<Model, Tipo del id>
@@ -52,6 +67,7 @@ _Ejemplo_
 Documentacion
 [**Métodos de consulta específicos de MongoDB**](https://docs.spring.io/spring-data/mongodb/reference/mongodb/repositories/query-methods.html)
 
+---
 ### Service
 A la hora de crear nuestro servicios la idea es crear una interface la cual sera el contrato 
 que implementara nuestro @Service con los metodos que se implementaran en el.
@@ -60,10 +76,11 @@ En la interface definiremos todos los metodos que se implementaran
 
 _Ejemplo de metodos_
 
-1. Flux< Product > findAll();
-2. Mono< Product > save(Product product);
-3. Mono< Void > delete(Product product);
-
+```
+Flux<Product> findAll();
+Mono<Product> save(Product product);
+Mono<Void> delete(Product product);
+```
 A la hora de crear nuestra clase para el servicio 
 usaremos siempre la anotacion de springboot @Service
 Aca inyectaremos nuestro Repository, y como buena practica 
@@ -71,5 +88,6 @@ haremos uso de la anotacion que nos proporciona Lombok **@RequiredArgsConstructo
 la cual nos permite hacer inyeccion de dependencias de una manera facil 
 tener presente que la declaracion debe ser **private final**.
 
+---
 ### Controller/RestController
- 
+
