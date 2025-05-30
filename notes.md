@@ -90,4 +90,101 @@ tener presente que la declaracion debe ser **private final**.
 
 ---
 ### Controller/RestController
+A la hora de crear nuestros controladores, en springboot tenemos dos anotaciones para esto 
+@Controller y @RestController es importante resaltar que se recomienda utilizar @RestController
+ya este tambien inyecta a la clase @ResponseBody y @Controller, es decir simplifica la forma de usar
+unicamente @Controller ya que toca especificar el @ResponseBody en nuestros methods
 
+**Importante** a la hora de utilizar nuestro service recordar 
+hacer uso de la anotacion @RequiredArgsConstructor y declarar nuestro servicio 
+private final asi inyectaremos nuestro service de la mejor manera.
+_**Hacer siempre uso de la interface, en ves de su implementacion**_
+
+**@RequestMapping:**
+Aca debemos hacer uso tambien del @RequestMapping en donde colocaremos el path nuestro controlador
+es imporntante o se recomienda colocar /api/ y ademas de esto el versionamiento 
+ejemplo /api/v1
+
+**Methods**
+
+```
+@GetMapping 
+@PostMapping
+@PutMapping
+@DeleteMappig
+```
+
+Es importante, saber que metodo aplicar a nuestros controlladores 
+como ejemplo de un mal uso seria usar un @GetMapping para una eliminacion
+ya que de esta manera pues podriamos obtener el id y hacer referencia al service 
+que me elimina el elemento, funcionaria si pero digamos que nos es lo adecuado
+en este caso se deberia de usar el @DeleteMapping.
+
+**@PathVariable:**
+Nos sirve para obtener informacion de la ruta, es importante 
+que el parametro que se mapea a recibir en el metodo se llame igual que la variable 
+a recibir en la ruta, en caso de querer llamarlo diferente, usaremos la propieda 
+name del @PathVariable.
+
+Ejemplo
+
+```
+@GetMapping("/{id}")
+public Mono<Product> getProduct(@PathVariable String id) {
+    return productService.findById(id);
+}
+```
+
+**@RequestParams:**
+Nos ayuda a extraer los parametros que se pueden llegar a mandar por la ruta.
+
+Ejemplo
+
+```
+http://localhost:8080/spring-mvc-basics/api/foos?id=abc
+----
+ID: abc
+```
+```
+@PostMapping("/api/foos")
+@ResponseBody
+public String addFoo(@RequestParam(name = "id") String fooId, @RequestParam String name) { 
+    return "ID: " + fooId + " Name: " + name;
+}
+```
+
+**@RequestBody:**
+asigna el cuerpo de HttpRequest a un objeto de transferencia o dominio, lo que permite 
+la deserialización automática del cuerpo de HttpRequest entrante en un objeto Java.
+
+Ejemplo
+
+```
+@PostMapping("/request")
+public ResponseEntity postController(
+  @RequestBody LoginForm loginForm) {
+ 
+    exampleService.fakeAuthenticate(loginForm);
+    return ResponseEntity.ok(HttpStatus.OK);
+}
+```
+
+**Nota:** Tener presente como se deben usar los DTO y los models 
+en este caso entre la comunicacion de nuestro controller y service 
+se haria uso de los DTO
+
+Flujo tipico recomendado:
+
+```
+[CLIENTE]
+   ⇅
+[CONTROLLER] ⇄ [DTOs]
+   ⇅
+[SERVICE] ⇄ [MODELS/ENTITIES]
+   ⇅
+[REPOSITORY]
+
+```
+
+_Para mapear de DTO a models y viceversa podemos usar librerias como
+MapStruct o ModelMapper._
